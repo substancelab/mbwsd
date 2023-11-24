@@ -6,46 +6,66 @@ function create() {
       const width = gameSize.width;
       const height = gameSize.height;
 
+      this.outputs.forEach(output => {
+        output.lineObject.setTo(0, 0, -width, -height);
+        output.lineObject.setPosition(width / 2, height / 2);
+      });
+
       this.cameras.resize(width, height);
     },
     this
   );
 
   const identifierOutput = this.add.text(10, 10, windowIdentifier())
-  this.dimensionsOutputs = []
+  this.outputs = []
 }
 
 // Called by Phaser on every frame
 function update() {
+  const windowWidth = this.scale.gameSize.width;
+  const windowHeight = this.scale.gameSize.height;
+
   const identifier = windowIdentifier();
   const windows = getWindowsFromLocalStorage();
+  const windowLeft = JSON.parse(localStorage.getItem(identifier)).left;
+  const windowTop = JSON.parse(localStorage.getItem(identifier)).top;
 
-  this.dimensionsOutputs.forEach(output => {
+  this.outputs.forEach(output => {
     if (!windows.includes(output.identifier)) {
-      output.gameObject.destroy();
+      output.textObject.destroy();
+      output.lineObject.destroy();
       output.identifier = null;
     }
   })
-  this.dimensionsOutputs = this.dimensionsOutputs.filter(output => {
+  this.outputs = this.outputs.filter(output => {
     return output.identifier
   })
 
   windows.forEach((identifier, index) => {
     const dimensions = JSON.parse(localStorage.getItem(identifier));
     let label = `${identifier}: ${JSON.stringify(dimensions)}`
-    let output = this.dimensionsOutputs.find(output => output.identifier === identifier);
+    let output = this.outputs.find(output => output.identifier === identifier);
+
     if (output) {
       // update
-      output.gameObject.setPosition(10, 30 + index * 20)
-      output.gameObject.setText(label)
+      let targetX = dimensions.left + (dimensions.width / 2) - windowLeft - (windowWidth / 2);
+      let targetY = dimensions.top + (dimensions.height / 2) - windowTop - (windowHeight / 2);
+      output.lineObject.setTo(0, 0, targetX, targetY);
+
+      output.textObject.setPosition(10, 30 + index * 20)
+      output.textObject.setText(label)
     } else {
       // add
-      const gameObject = this.add.text(10, 30 + index * 20, label)
+      const lineObject = this.add.line(windowWidth / 2, windowHeight / 2, 0,0, 100, 100, 0x333333).setOrigin(0);
+      lineObject.setLineWidth(5);
+      const textObject = this.add.text(10, 30 + index * 20, label)
       const storageObject = {
         identifier,
-        gameObject,
+        lineObject,
+        textObject,
       }
-      this.dimensionsOutputs.push(storageObject)
+
+      this.outputs.push(storageObject)
     }
   })
 };
