@@ -4,6 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiple Browser Window Sync Demo, weeee</title>
+
+    <script>
+      function register_current_browser_window(identifier) {
+        var windows = localStorage.getItem("windows");
+
+        if (windows) {
+          if (windows.includes(identifier)) {
+            // window identifier already exists
+            return;
+          } else {
+            windows = windows + "," + identifier;
+          }
+        } else {
+          windows = identifier;
+        }
+
+        localStorage.setItem("windows", windows);
+      }
+
+      function register_current_browser_window (identifier) {
+        var windows = localStorage.getItem("windows");
+
+        if (windows) {
+          if (windows.includes(identifier)) {
+            // window identifier already exists
+            return identifier;
+          } else {
+            windows = windows + "," + identifier;
+          }
+        } else {
+          windows = identifier;
+        }
+
+        localStorage.setItem("windows", windows);
+
+        return identifier;
+      }
+
+      function window_identifier() {
+        if (self.window.name) {
+          // We've already created an identifier for this window
+          return self.window.name;
+        } else {
+          // create new window identifier
+          var identifier = Math.random().toString(36).slice(2, 12);
+          self.window.name = identifier;
+          return identifier;
+        }
+      }
+
+      function logViewport() {
+        var width = visualViewport.width;
+        var height = visualViewport.height;
+        var left = window.screenX;
+        var top = window.screenY;
+
+        var data = {
+          height: height,
+          left: left,
+          top: top,
+          width: width,
+        }
+
+        // save identifier to local storage
+        var identifier = register_current_browser_window(window_identifier());
+
+        localStorage.setItem(identifier, JSON.stringify(data))
+        console.log(JSON.parse(localStorage.getItem(identifier)));
+      }
+
+      setInterval(logViewport, 1000);
+    </script>
   </head>
   <body>
 
