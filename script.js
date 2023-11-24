@@ -7,7 +7,9 @@ function create() {
       const height = gameSize.height;
 
       this.outputs.forEach(output => {
-        output.lineObject.setTo(0, 0, -width, -height);
+        // outputlineObject.strokeLineShape(new Phaser.Geom.Line(0, 0, 100, 100));
+
+        // output.lineObject.setTo(0, 0, -width, -height);
         output.lineObject.setPosition(width / 2, height / 2);
       });
 
@@ -55,14 +57,30 @@ function update() {
 
       let targetX = otherWindowCenterX - windowCenterX;
       let targetY = otherWindowCenterY - windowCenterY;
-      output.lineObject.setTo(0, 0, targetX, targetY);
+
+      let lineObject = output.lineObject;
+
+      let angleToTarget = Phaser.Math.Angle.BetweenPoints(
+        { x: windowCenterX, y: windowCenterY},
+        { x: otherWindowCenterX, y: otherWindowCenterY }
+      );
+      lineObject.setAngle(angleToTarget * 180 / Math.PI);
+
+      let distanceToTarget = Phaser.Math.Distance.BetweenPoints(
+        { x: windowCenterX, y: windowCenterY },
+        { x: otherWindowCenterX, y: otherWindowCenterY }
+      )
+      lineObject.setScale(distanceToTarget, 1);
 
       output.textObject.setPosition(10, 30 + index * 20)
       output.textObject.setText(label)
     } else {
       // add
-      const lineObject = this.add.line(windowWidth / 2, windowHeight / 2, 0,0, 100, 100, 0x333333).setOrigin(0);
-      lineObject.setLineWidth(5);
+      const lineObject = this.add.graphics();
+      lineObject.lineStyle(5, 0x008000, 1);
+      lineObject.strokeLineShape(new Phaser.Geom.Line(0, 0, 1, 0));
+      lineObject.setPosition(windowWidth / 2, windowHeight / 2);
+
       const textObject = this.add.text(10, 30 + index * 20, label)
       const storageObject = {
         identifier,
