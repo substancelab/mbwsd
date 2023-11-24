@@ -25,6 +25,7 @@ const windowIdentifier = () => {
 const removeFromWindows = (identifier) => {
   let windows = getWindowsFromLocalStorage();
   windows = windows.filter(window => window !== identifier);
+  setWindowsFromLocalStorage(windows);
 }
 
 const removeWindow = () => {
@@ -48,9 +49,14 @@ const update = () => {
   localStorage.setItem(identifier, JSON.stringify(data))
 
   const windows = getWindowsFromLocalStorage();
+  console.log(windows)
   windows.forEach(identifier => {
     const dimensions = JSON.parse(localStorage.getItem(identifier));
-    console.log(dimensions, identifier);
+    if (dimensions) {
+      console.log(dimensions, identifier)
+    } else {
+      removeFromWindows(identifier);
+    }
   });
 }
 
