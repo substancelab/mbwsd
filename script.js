@@ -24,11 +24,13 @@ function create() {
 function update() {
   const windowWidth = this.scale.gameSize.width;
   const windowHeight = this.scale.gameSize.height;
+  const windowLeft = window.screenX;
+  const windowTop = window.screenY;
+  const windowCenterX = windowLeft + (windowWidth / 2);
+  const windowCenterY = windowTop + (windowHeight / 2);
 
   const identifier = windowIdentifier();
   const windows = getWindowsFromLocalStorage();
-  const windowLeft = JSON.parse(localStorage.getItem(identifier)).left;
-  const windowTop = JSON.parse(localStorage.getItem(identifier)).top;
 
   this.outputs.forEach(output => {
     if (!windows.includes(output.identifier)) {
@@ -42,14 +44,17 @@ function update() {
   })
 
   windows.forEach((identifier, index) => {
-    const dimensions = JSON.parse(localStorage.getItem(identifier));
+    const dimensions = getDimensionsFromLocalStorage(identifier);
     let label = `${identifier}: ${JSON.stringify(dimensions)}`
     let output = this.outputs.find(output => output.identifier === identifier);
 
     if (output) {
       // update
-      let targetX = dimensions.left + (dimensions.width / 2) - windowLeft - (windowWidth / 2);
-      let targetY = dimensions.top + (dimensions.height / 2) - windowTop - (windowHeight / 2);
+      let otherWindowCenterX = dimensions.left + (dimensions.width / 2);
+      let otherWindowCenterY = dimensions.top + (dimensions.height / 2);
+
+      let targetX = otherWindowCenterX - windowCenterX;
+      let targetY = otherWindowCenterY - windowCenterY;
       output.lineObject.setTo(0, 0, targetX, targetY);
 
       output.textObject.setPosition(10, 30 + index * 20)
@@ -69,6 +74,11 @@ function update() {
     }
   })
 };
+
+const getDimensionsFromLocalStorage = (identifier) => {
+  const rawData = localStorage.getItem(identifier);
+  return JSON.parse(rawData);
+}
 
 const getWindowsFromLocalStorage = () => {
   const windows = JSON.parse(localStorage.getItem('windows'));
@@ -122,7 +132,7 @@ const logDimensions = () => {
 
   const windows = getWindowsFromLocalStorage();
   windows.forEach(identifier => {
-    const dimensions = JSON.parse(localStorage.getItem(identifier));
+    const dimensions = getDimensionsFromLocalStorage(identifier);
     if (dimensions) {
       // console.log(dimensions, identifier)
     } else {
