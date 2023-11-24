@@ -155,7 +155,11 @@ const game = new Phaser.Game(config);
 
 setInterval(logDimensions, 25);
 
-window.onbeforeunload = removeWindow;
+window.addEventListener('visibilitychange', event => {
+  if (window.visibilityState !== "visible") {
+    removeWindow();
+  }
+})
 
 window.addEventListener('resize', event => {
   // In scaleMode NONE the Scale Manager is effectively disabled, so we need
