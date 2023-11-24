@@ -77,10 +77,18 @@ function update() {
     } else {
       // add
       const lineObject = this.add.graphics();
-      lineObject.lineStyle(5, 0x008000, 1);
+      lineObject.lineGradientStyle(5, 0x008000, 0x00ff00, 0x002000, 0x00ff00);
       lineObject.strokeLineShape(new Phaser.Geom.Line(0, 0, 1, 0));
       lineObject.setPosition(windowWidth / 2, windowHeight / 2);
 
+      const fx = lineObject.postFX.addGlow(0x88ff88, 4, 0, false, 0.1, 32);
+      this.tweens.add({
+        targets: fx,
+        outerStrength: 1,
+        yoyo: true,
+        loop: -1,
+        ease: 'sine.inout'
+    });
       const textObject = this.add.text(10, 30 + index * 20, label)
       const storageObject = {
         identifier,
@@ -161,7 +169,7 @@ const logDimensions = () => {
 
 const config = {
   mode: Phaser.Scale.NONE,
-  type: Phaser.AUTO,
+  type: Phaser.WEBGL,
   width: window.innerWidth,
   height: window.innerHeight,
   scene: {
