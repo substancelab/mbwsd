@@ -1,5 +1,5 @@
 // Called by Phaser on initialization
-const create = () => {
+function create() {
   this.scale.on(
     'resize',
     function (gameSize) {
@@ -10,7 +10,45 @@ const create = () => {
     },
     this
   );
+
+  const identifierOutput = this.add.text(10, 10, windowIdentifier())
+  this.dimensionsOutputs = []
 }
+
+// Called by Phaser on every frame
+function update() {
+  const identifier = windowIdentifier();
+  const windows = getWindowsFromLocalStorage();
+
+  this.dimensionsOutputs.forEach(output => {
+    if (!windows.includes(output.identifier)) {
+      output.gameObject.destroy();
+      output.identifier = null;
+    }
+  })
+  this.dimensionsOutputs = this.dimensionsOutputs.filter(output => {
+    return output.identifier
+  })
+
+  windows.forEach((identifier, index) => {
+    const dimensions = JSON.parse(localStorage.getItem(identifier));
+    let label = `${identifier}: ${JSON.stringify(dimensions)}`
+    let output = this.dimensionsOutputs.find(output => output.identifier === identifier);
+    if (output) {
+      // update
+      output.gameObject.setPosition(10, 30 + index * 20)
+      output.gameObject.setText(label)
+    } else {
+      // add
+      const gameObject = this.add.text(10, 30 + index * 20, label)
+      const storageObject = {
+        identifier,
+        gameObject,
+      }
+      this.dimensionsOutputs.push(storageObject)
+    }
+  })
+};
 
 const getWindowsFromLocalStorage = () => {
   const windows = JSON.parse(localStorage.getItem('windows'));
@@ -30,10 +68,6 @@ const registerCurrentWindow = () => {
 
 const setWindowsFromLocalStorage = (windows) => {
   localStorage.setItem("windows", JSON.stringify(windows));
-}
-
-// Called by Phaser on every frame
-const update = () => {
 }
 
 const windowIdentifier = () => {
@@ -67,11 +101,10 @@ const logDimensions = () => {
   localStorage.setItem(identifier, JSON.stringify(data))
 
   const windows = getWindowsFromLocalStorage();
-  console.log(windows)
   windows.forEach(identifier => {
     const dimensions = JSON.parse(localStorage.getItem(identifier));
     if (dimensions) {
-      console.log(dimensions, identifier)
+      // console.log(dimensions, identifier)
     } else {
       removeFromWindows(identifier);
     }
