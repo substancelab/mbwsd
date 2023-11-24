@@ -123,7 +123,7 @@ const config = {
 }
 const game = new Phaser.Game(config);
 
-setInterval(logDimensions, 1000);
+setInterval(logDimensions, 25);
 
 window.onbeforeunload = removeWindow;
 
