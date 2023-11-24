@@ -24,20 +24,20 @@
       }
 
       function register_current_browser_window (identifier) {
-        var windows = localStorage.getItem("windows");
-
+        var rawData = localStorage.getItem("windows")
+        var windows = JSON.parse(rawData);
         if (windows) {
           if (windows.includes(identifier)) {
             // window identifier already exists
             return identifier;
           } else {
-            windows = windows + "," + identifier;
+            windows.push(identifier);
           }
         } else {
-          windows = identifier;
+          windows = [identifier];
         }
 
-        localStorage.setItem("windows", windows);
+        localStorage.setItem("windows", JSON.stringify(windows));
 
         return identifier;
       }
@@ -71,7 +71,12 @@
         var identifier = register_current_browser_window(window_identifier());
 
         localStorage.setItem(identifier, JSON.stringify(data))
-        console.log(JSON.parse(localStorage.getItem(identifier)));
+
+        var windows = JSON.parse(localStorage.getItem('windows'))
+        windows.forEach(function (identifier) {
+          var dimensions = JSON.parse(localStorage.getItem(identifier));
+          console.log(dimensions, identifier);
+        });
       }
 
       setInterval(logViewport, 1000);
